@@ -48,7 +48,6 @@ class SerialStream(Thread):
           checksum_found = True
           for subscriber in self.subscribers[:]:
             try:
-              print("notifyinbg subscriber")
               subscriber(packet)
             except:
               print("failed, removing subscriber")

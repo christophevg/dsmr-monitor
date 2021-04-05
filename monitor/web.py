@@ -19,9 +19,7 @@ socketio = SocketIO(app)
 def publish(packet):
   try:
     packet["timestamp"] = str(packet["timestamp"])
-    print("publishing", packet)
     socketio.emit("update", packet)
-    print("done")
   except Exception as e:
     print("ERROR", str(e))
 
