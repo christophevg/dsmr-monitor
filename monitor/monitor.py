@@ -18,11 +18,13 @@ class SerialStream(Thread):
     self.ser.rtscts   = 0
     self.ser.timeout  = 12
     self.ser.port     = "/dev/ttyUSB0"
+    print("serial stream initialized")
   
   def subscribe(self, callback):
     self.subscribers.append(callback)
 
-  def run(self):    
+  def run(self):
+    print("starting serial stream thread")
     previous = {}
     packet   = {}
     self.ser.close()
@@ -46,8 +48,10 @@ class SerialStream(Thread):
           checksum_found = True
           for subscriber in self.subscribers[:]:
             try:
+              print("notifyinbg subscriber")
               subscriber(packet)
             except:
+              print("failed, removing subscriber")
               self.subscribers.remove(subscriber)
           packet = {}
     except:

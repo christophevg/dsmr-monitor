@@ -17,6 +17,7 @@ def default(name=None):
 socketio = SocketIO(app)
 
 def publish(packet):
+  print("publishing", packet)
   packet["timestamp"] = str(packet["timestamp"])
   packet["clients"] = len(clients)
   socketio.emit("update", packet)
@@ -25,8 +26,8 @@ stream.subscribe(publish)
 
 @socketio.on('connect')
 def on_connect():
-  pass
+  print("client connected")
 
 @socketio.on('disconnect')
 def on_disconnect():
-  pass
+  print("client disconnected")
