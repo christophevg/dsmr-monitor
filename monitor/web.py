@@ -17,10 +17,14 @@ def default(name=None):
 socketio = SocketIO(app)
 
 def publish(packet):
-  print("publishing", packet)
-  packet["timestamp"] = str(packet["timestamp"])
-  packet["clients"] = len(clients)
-  socketio.emit("update", packet)
+  try:
+    packet["timestamp"] = str(packet["timestamp"])
+    packet["clients"] = len(clients)
+    print("publishing", packet)
+    socketio.emit("update", packet)
+    print("done")
+  except Exception as e:
+    print("ERROR", str(e))
 
 stream.subscribe(publish)
 
