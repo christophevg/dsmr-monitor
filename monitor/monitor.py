@@ -1,42 +1,58 @@
 import serial
+from serial import Serial
 from monitor.protocol import parse
 
-ser = serial.Serial()
- 
-ser.baudrate = 115200
-ser.bytesize = serial.EIGHTBITS
-ser.parity   = serial.PARITY_NONE
-ser.stopbits = serial.STOPBITS_ONE
-ser.xonxoff  = 0
-ser.rtscts   = 0
-ser.timeout  = 12
-ser.port     = "/dev/ttyUSB0"
+from threading import Thread
 
-def stream():
-  previous = {}
-  packet   = {}
-  try:
-    ser.close()
-    ser.open()
-    while True:
-      line = ser.readline()
-      line = line.decode("ascii").strip()
-      name, value = parse(line)
-      if name:
-        try:
-          change = round(value - previous[name], 4)
-        except:
-          change = None
-        previous[name] = value
-        packet[name]   = value
-        if not change is None:
-          packet[name + " change"] = change
+class SerialStream(Thread):
+  def __init__(self):
+    super().__init__()
+    self.subscribers = []
+
+    self.ser = Serial()
+    self.ser.baudrate = 115200
+    self.ser.bytesize = serial.EIGHTBITS
+    self.ser.parity   = serial.PARITY_NONE
+    self.ser.stopbits = serial.STOPBITS_ONE
+    self.ser.xonxoff  = 0
+    self.ser.rtscts   = 0
+    self.ser.timeout  = 12
+    self.ser.port     = "/dev/ttyUSB0"
   
-      if line.startswith("!"):
-        checksum_found = True
-        yield packet
-        packet = {}
-  except KeyboardInterrupt:
-    pass
+  def subscribe(self, callback):
+    self.subscribers.append(callback)
 
-  ser.close()
+  def run(self):    
+    previous = {}
+    packet   = {}
+    self.ser.close()
+    self.ser.open()
+    try:
+      while True:
+        line = self.ser.readline()
+        line = line.decode("ascii").strip()
+        name, value = parse(line)
+        if name:
+          try:
+            change = round(value - previous[name], 4)
+          except:
+            change = None
+          previous[name] = value
+          packet[name]   = value
+          if not change is None:
+            packet[name + " change"] = change
+  
+        if line.startswith("!"):
+          checksum_found = True
+          for subscriber in self.subscribers[:]:
+            try:
+              subscriber(packet)
+            except:
+              self.subscribers.remove(subscriber)
+          packet = {}
+    except:
+      pass
+    self.ser.close()
+
+stream = SerialStream()
+stream.start()

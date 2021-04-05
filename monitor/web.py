@@ -16,21 +16,17 @@ def default(name=None):
 
 socketio = SocketIO(app)
 
-clients = []
+def publish(packet):
+  packet["timestamp"] = str(packet["timestamp"])
+  packet["clients"] = len(clients)
+  socketio.emit("update", packet)
 
-def publish_stream():
-  for packet in stream():
-    if len(clients) == 0: return
-    packet["timestamp"] = str(packet["timestamp"])
-    packet["clients"] = len(clients)
-    socketio.emit("update", packet)
+stream.subscribe(publish)
 
 @socketio.on('connect')
 def on_connect():
-  clients.append(request.sid)
-  if len(clients) == 1:
-    threading.Thread(target=publish_stream).start()
+  pass
 
 @socketio.on('disconnect')
 def on_disconnect():
-  clients.remove(request.sid)
+  pass
