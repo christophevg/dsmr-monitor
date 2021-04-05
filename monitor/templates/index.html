@@ -1,0 +1,15 @@
+<html>
+
+<body>
+  <h1>Monitor</h1>
+</body>
+
+<script src="/static/socket.io.js"></script>
+<script type="text/javascript" charset="utf-8">
+    var socket = io();
+    socket.on("update", function(update) {
+      console.log(update);
+    })
+</script>
+
+</html>
