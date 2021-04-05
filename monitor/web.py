@@ -19,7 +19,6 @@ socketio = SocketIO(app)
 def publish(packet):
   try:
     packet["timestamp"] = str(packet["timestamp"])
-    packet["clients"] = len(clients)
     print("publishing", packet)
     socketio.emit("update", packet)
     print("done")
