@@ -5,6 +5,8 @@
 <body>
   <h1>Monitor</h1>
   
+  <div id="summary"></div>
+  
   <canvas id="myChart"></canvas> 
   <canvas id="myChart2"></canvas> 
   
@@ -101,11 +103,17 @@
       myChart.data.datasets[1].data.push({ x: now, y: current_out });
     }
 
+    // compute x-second average watt usage for summary
+    var x = 3;
+    if( avg.length > x ) {
+      var watt = avg.slice(-x).reduce(function(a, b) { return a - b[0] + b[1] }, 0) / x;
+      $("#summary").html("" + watt + " W");
+    }
+
     if( minute == null ) { minute = now.minutes(); }
     if(now.minutes() != minute) {
       var bucket_in  = avg.reduce(function(a, b) { return a + b[0] }, 0),
           bucket_out = avg.reduce(function(a, b) { return a + b[1] }, 0);
-      console.log("collecting bucket", bucket_in, bucket_out);
       minute = now.minutes();
       myChart2.data.datasets[0].data.push({ x: now, y: -bucket_in  });
       myChart2.data.datasets[1].data.push({ x: now, y: bucket_out });
