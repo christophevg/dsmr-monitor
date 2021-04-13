@@ -14,6 +14,10 @@ app = Flask(__name__)
 def default(name=None):
   return render_template("index.html")
 
+@app.route('/index.html')
+def default(name=None):
+  return render_template("index.html")
+
 socketio = SocketIO(app, cors_allowed_origins="*")
 
 def publish(packet):
