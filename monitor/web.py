@@ -14,7 +14,7 @@ app = Flask(__name__)
 def default(name=None):
   return render_template("index.html")
 
-socketio = SocketIO(app)
+socketio = SocketIO(app, cors_allowed_origins="*")
 
 def publish(packet):
   try:
