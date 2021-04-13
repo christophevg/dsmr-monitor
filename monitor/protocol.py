@@ -35,7 +35,7 @@ def parse(line):
     if line.startswith(header):
       result = regs[header].search(line)
       if result:
-        return message.name, parse(result.group(1))
+        return message.name, result.group(1)
   return None, None
 
 if __name__ == "__main__":
