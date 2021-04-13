@@ -19,7 +19,7 @@ def default2(name=None):
   return render_template("index.html")
 
 @app.route('/manifest.json')
-def default2(name=None):
+def manifest(name=None):
   return render_template("manifest.json")
 
 socketio = SocketIO(app, cors_allowed_origins="*")
