@@ -2,14 +2,116 @@
 
 <body>
   <h1>Monitor</h1>
+  
+  <div style="width:800px;height:00px">
+    <canvas id="myChart"></canvas> 
+    <canvas id="myChart2"></canvas> 
+  </div>
+  
 </body>
+<script src="/static/jquery.min.js"></script>
+
+<script src="/static/moments.js"></script>
+<script src="/static/chart.min.js"></script>
+<script src="/static/chartjs-plugin-streaming.min.js"></script>
 
 <script src="/static/socket.io.js"></script>
+
 <script type="text/javascript" charset="utf-8">
-    var socket = io();
-    socket.on("update", function(update) {
-      console.log(update);
-    })
-</script>
+
+  var data = []
+
+  var ctx = document.getElementById("myChart").getContext("2d");
+  var myChart = new Chart(ctx, {
+    type: "bar",
+    data: {
+      datasets: [{
+        data: [],
+        label: 'Afname',
+        borderColor: 'rgb(255, 99, 132)',
+        backgroundColor: 'rgba(255, 99, 132, 0.5)'
+      }, {
+        data: [],
+        label: 'Injectie',
+        borderColor: 'rgb(75, 192, 192)',
+        backgroundColor: 'rgb(75, 192, 192, 0.5)'
+      }]
+    },
+    options: {
+      scales: {
+        xAxes: [{
+          type: "realtime",
+          realtime: {
+            duration: 120000,
+					  refresh:    1000
+          }
+        }]
+      }
+    }
+  });
+
+  var ctx2 = document.getElementById("myChart2").getContext("2d");
+  var myChart2 = new Chart(ctx2, {
+    type: "bar",
+    data: {
+      datasets: [{
+        data: [],
+        label: 'Afname',
+        borderColor: 'rgb(255, 99, 132)',
+        backgroundColor: 'rgba(255, 99, 132, 0.5)'
+      }, {
+        data: [],
+        label: 'Injectie',
+        borderColor: 'rgb(75, 192, 192)',
+        backgroundColor: 'rgb(75, 192, 192, 0.5)'
+      }]
+    },
+    options: {
+      scales: {
+        xAxes: [{
+          type: "realtime",
+          time: {
+            unit: "minute"            
+          },
+          realtime: {
+            duration: 1800000,
+					  refresh:    60000
+          }
+        }]
+      }
+    }
+  });
+
+
+  var socket = io();
+  var avg = [];
+  var minute = null;
+
+  socket.on("update", function(update) {
+    console.log(update);
+    var now         = moment(update["timestamp"]),
+        current_in  = update["in day change"] + update["in night change"],
+        current_out = update["out day change"] + update["out night change"];
+    avg.push( [ current_in, current_out ] );
+    avg = avg.slice(-60);  // keep 1 minute
+    
+    if(current_in > 0) {
+      myChart.data.datasets[0].data.push({ x: now, y: -current_in });
+    } else {
+      myChart.data.datasets[1].data.push({ x: now, y: current_out });
+    }
+
+    if( minute == null ) { minute = now.minutes(); }
+    if(now.minutes() != minute) {
+      var bucket_in  = avg.reduce(function(a, b) { return a + b[0] }, 0),
+          bucket_out = avg.reduce(function(a, b) { return a + b[1] }, 0);
+      console.log("collecting bucket", bucket_in, bucket_out);
+      minute = now.minutes();
+      myChart2.data.datasets[0].data.push({ x: now, y: -bucket_in  });
+      myChart2.data.datasets[1].data.push({ x: now, y: bucket_out });
+    }
+  });
+  
+  </script>
 
 </html>
