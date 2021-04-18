@@ -3,10 +3,15 @@ load_dotenv(find_dotenv())
 
 import os
 
-URL    = os.environ.get("INFLUX_URL")
-TOKEN  = os.environ.get("INFLUX_TOKEN")
-BUCKET = os.environ.get("INFLUX_BUCKET")
-ORG    = os.environ.get("INFLUX_ORG")
+URL  = os.environ.get("INFLUX_URL")
+USER = os.environ.get("INFLUX_USER")
+PASS = os.environ.get("INFLUX_PASS")
+DB   = os.environ.get("INFLUX_DB")
+ORG  = "-"
+
+retention_policy = "autogen"
+BUCKET = "{}/{}".format(DB, retention_policy)
+TOKEN = "{}:{}".format(USER, PASS)
 
 from influxdb_client import InfluxDBClient, Point
 from influxdb_client.client.write_api import ASYNCHRONOUS
