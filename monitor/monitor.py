@@ -4,6 +4,7 @@ from monitor.protocol import parse
 
 from threading import Thread
 
+from monitor.influx import influxdb_write
 
 class ReadLine:
   '''
@@ -79,12 +80,23 @@ class SerialStream(Thread):
 
       if line.startswith("!"):
         checksum_found = True
+
+        # send to subscribers
         for subscriber in self.subscribers[:]:
           try:
             subscriber(packet)
           except:
             print("failed, removing subscriber")
             self.subscribers.remove(subscriber)
+
+        # store in influxdb
+        try:
+          ts = packet.pop("timestamp")
+          influxdb_write("energy", [(ts, packet)] )
+        except Exception as e:
+          print("failed to write to influx...")
+          print(str(e))
+
         packet = {}
       
     self.ser.close()
