@@ -1,11 +1,16 @@
 import datetime
 import re
+import pytz
 
 from collections import namedtuple 
 
 def parse_timestamp(format="%y%m%d%H%M%S"):
   def parse(value):
-    return datetime.datetime.strptime(value, format)
+    native = datetime.datetime.strptime(value, format)
+    local = pytz.timezone("Europe/Brussels")
+    local_dt = local.localize(native, is_dst=None)
+    utc_dt = local_dt.astimezone(pytz.utc)
+    return utc_dt
   return parse
 
 DSMRMessage = namedtuple("DSMRMessage",[ "pattern", "name", "parser" ])
