@@ -16,6 +16,7 @@
   
   <canvas id="myChart"></canvas> 
   <canvas id="myChart2"></canvas> 
+  <canvas id="myChart3"></canvas> 
 
       <div class="container"></div>
     </main>
@@ -94,8 +95,39 @@
     }
   });
 
+  var ctx3 = document.getElementById("myChart3").getContext("2d");
+  var myChart3 = new Chart(ctx3, {
+    type: "line",
+    data: {
+      datasets: [{
+        data: [],
+        label: 'fase 1',
+        borderColor: 'rgb(255, 99, 132)'
+      }, {
+        data: [],
+        label: 'fase 2',
+        borderColor: 'rgb(245, 190, 80)'
+      }, {
+        data: [],
+        label: 'fase 3',
+        borderColor: 'rgb(75, 192, 192)'
+      }]
+    },
+    options: {
+      scales: {
+        xAxes: [{
+          type: "realtime",
+          realtime: {
+            duration: 120000,
+					  refresh:    1000
+          }
+        }]
+      }
+    }
+  });
 
-  var socket = io();
+
+  var socket = io("http://energy.local:8000");
   var avg = [];
   var minute = null;
 
@@ -112,7 +144,7 @@
     } else {
       myChart.data.datasets[1].data.push({ x: now, y: current_out });
     }
-
+      
     // compute x-second average watt usage for summary
     var x = 10;
     if( avg.length > x ) {
@@ -128,6 +160,11 @@
       myChart2.data.datasets[0].data.push({ x: now, y: -bucket_in  });
       myChart2.data.datasets[1].data.push({ x: now, y: bucket_out });
     }
+    
+    // voltages
+    myChart3.data.datasets[0].data.push({ x: now, y: update["out phase 1"] });
+    myChart3.data.datasets[1].data.push({ x: now, y: update["out phase 2"] });
+    myChart3.data.datasets[2].data.push({ x: now, y: update["out phase 3"] });
   });
   
   </script>
