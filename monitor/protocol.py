@@ -16,7 +16,7 @@ def parse_timestamp(format="%y%m%d%H%M%S"):
 DSMRMessage = namedtuple("DSMRMessage",[ "pattern", "name", "parser" ])
 
 protocol = {
-  "0-0:1.0.0"  : DSMRMessage("\(([0-9]+)S\)",       "timestamp",   parse_timestamp() ),
+  "0-0:1.0.0"  : DSMRMessage("\(([0-9]+)[WS]\)",       "timestamp",   parse_timestamp() ),
   "1-0:1.8.1"  : DSMRMessage("\(([0-9\.]+)\*kWh\)", "in day",      float ),
   "1-0:1.8.2"  : DSMRMessage("\(([0-9\.]+)\*kWh\)", "in night",    float ),
   "1-0:2.8.1"  : DSMRMessage("\(([0-9\.]+)\*kWh\)", "out day",     float ),
@@ -55,3 +55,4 @@ if __name__ == "__main__":
 
   for line in data.split("\n"):
     print(parse(line))
+
