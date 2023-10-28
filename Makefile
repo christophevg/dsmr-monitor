@@ -4,9 +4,12 @@ serve:
 	gunicorn -k eventlet -w 1 --bind 0.0.0.0:8000 monitor.web:app
 
 .python-version:
-	@pyenv virtualenv 3.7.7 $$(basename ${CURDIR}) > /dev/null 2>&1 || true
+	@pyenv virtualenv $$(basename ${CURDIR}) > /dev/null 2>&1 || true
 	@pyenv local $$(basename ${CURDIR})
 	@pyenv version
+
+upgrade:
+	@pip list --outdated | tail +3 | cut -d " " -f 1 | xargs -n1 pip install -U
 
 SERVICE=dsmr-monitor
 
